@@ -37,8 +37,6 @@ fun unite(s1: Set<String>, s2: Set<String>): Set<String> {
     return ret
 }
 
-fun toString(input: Char): String = input.toString()
-
 fun toString(input: ArrayList<Word>): String {
     var ret = "["
     for (i in 0 until input.size) {
@@ -71,6 +69,17 @@ fun split(input: String, sep: Set<Char>): ArrayList<Word> {
     return ret;
 }
 
+fun join(v: ArrayList<String>, sep: String = " "): String {
+    var ret: String = ""
+    for (i in 0 until v.size - 1)
+        ret += v[i] + sep
+    return ret + v[v.size - 1]
+}
+
+fun join(v: ArrayList<String>, sep: Char = ' '): String {
+    return join(v, sep.toString())
+}
+
 fun isNumber(input: String): Boolean {
     if (input[0] > '9' || input[0] < '0') return false
     var dots: Int = 0
@@ -81,15 +90,41 @@ fun isNumber(input: String): Boolean {
         }
         if (input[i] > '9' || input[i] < '0') return false
     }
-    if (input[input.length - 1] > '9' || input[input.length - 1] < '0') return false
+    val last = input[input.length - 1]
+    if ((last > '9' || last < '0') && last != 'F' && last != 'f' && last != 'L' && last != 'l')
+        return false
     return dots <= 1
 }
 
-fun cleared(input: String): String {
+fun formatted(input: String): String {
     var ret = ""
     for (i in input) {
-        if (i == '\r')  continue
+        if (i == '\r') continue
+        if (i == '\t') {
+            ret += " "
+            continue
+        }
         ret += i
+    }
+    return ret
+}
+
+fun separate(input: String, sep: Set<String>): ArrayList<Word> {
+    val ret = arrayListOf<Word>()
+    var tmp: String = ""
+    for (shift in input.indices) {
+        if (sep.contains(input[shift].toString())) {
+            if (tmp.isNotEmpty()) {
+                for (i in split(tmp, setOf(' ', '\r')))
+                    ret.add(Word(i.source, i.index + shift - tmp.length))
+            }
+            ret.add(Word(input[shift].toString(), shift))
+            tmp = ""
+        } else tmp += input[shift].toString()
+    }
+    if (tmp.isNotEmpty()) {
+        for (i in split(tmp, setOf(' ', '\r')))
+            ret.add(Word(i.source, i.index + input.length - tmp.length))
     }
     return ret
 }

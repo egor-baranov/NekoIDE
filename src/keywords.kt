@@ -30,9 +30,10 @@ val Operators: Set<String> = setOf(
     "<<", ">>", "!", "="
 )
 
-val Punctuation: Set<String> = setOf(
+val Punctuations: Set<String> = setOf(
     "{", "}",
     "[", "]",
     "(", ")",
-    ",", ";", "."
+    ",", ";", ".",
+    "\"", "\'", "\n"
 )
