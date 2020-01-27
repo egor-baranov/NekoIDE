@@ -9,12 +9,15 @@ val Keywords: Set<String> = setOf(
     "var", "val",
     "and", "or", "not", "in",
     "for", "while",
+    "if", "else",
     "get", "set",
     "fun", "lambda", "return", "break", "continue",
     "this",
     "class", "as", "is", "new", "delete",
     "public", "private", "protected",
-    "static", "sealed", "abstract"
+    "static", "sealed", "abstract",
+    "from", "import",
+    "object"
 )
 
 val Constants: Set<String> = setOf(
@@ -34,6 +37,6 @@ val Punctuations: Set<String> = setOf(
     "{", "}",
     "[", "]",
     "(", ")",
-    ",", ";", ".",
+    ",", ";", ".", ":",
     "\"", "\'", "\n"
 )

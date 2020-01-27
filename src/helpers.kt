@@ -1,22 +1,25 @@
+import java.awt.Color
 import java.lang.Exception
 
 fun lStrip(input: String): String {
     var left: Int = 0
     for (i in input) {
-        if (i in arrayListOf<Char>('\n', '\r', '\t', ' '))
+        if (i in arrayListOf('\n', '\r', '\t', ' '))
             ++left
         else break
     }
+    val c = 's'
     var ret: String = ""
-    for (i in left until input.length)
+    for (i in left until input.length) {
         ret += input[i]
+    }
     return ret
 }
 
 fun rStrip(input: String): String {
     var right: Int = 0
     for (i in input.length - 1..0) {
-        if (input[i] in arrayListOf<Char>('\n', '\r', '\t', ' '))
+        if (input[i] in arrayListOf('\n', '\r', '\t', ' '))
             ++right
         else break
     }
@@ -40,7 +43,11 @@ fun unite(s1: Set<String>, s2: Set<String>): Set<String> {
 fun toString(input: ArrayList<Word>): String {
     var ret = "["
     for (i in 0 until input.size) {
-        ret += "{${input[i].source}, ${input[i].index}}"
+        if (input[i].source == "\n")
+            ret += "{${"\\n"}, ${input[i].index}}"
+        else {
+            ret += "{${input[i].source}, ${input[i].index}}"
+        }
         if (i != input.size - 1) ret += ", "
     }
     ret += "]"
@@ -81,6 +88,7 @@ fun join(v: ArrayList<String>, sep: Char = ' '): String {
 }
 
 fun isNumber(input: String): Boolean {
+    if (input.isEmpty()) return false
     if (input[0] > '9' || input[0] < '0') return false
     var dots: Int = 0
     for (i in 1 until input.length - 1) {
@@ -128,3 +136,14 @@ fun separate(input: String, sep: Set<String>): ArrayList<Word> {
     }
     return ret
 }
+
+fun isCorrectName(input: String): Boolean {
+    if (input.isEmpty()) return false
+    if (!input[0].isLetter() && input[0] != '_')
+        return false
+    for (c in input)
+        if (!c.isLetterOrDigit() && c != '_')
+            return false
+    return true
+}
+
