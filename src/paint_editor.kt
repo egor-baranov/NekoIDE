@@ -1,5 +1,4 @@
 import java.awt.Color
-import java.lang.Integer.min
 import javax.swing.JTextPane
 import javax.swing.SwingUtilities
 import javax.swing.text.SimpleAttributeSet
@@ -17,7 +16,7 @@ val stringGreen = Color(106, 135, 89)
 val functionNameYellow = Color(255, 198, 109)
 val badCharacterRed = Color(255, 0, 0)
 
-fun paintEditor(textEditor: JTextPane) {
+fun paintEditor(textEditor: CodeEditor) {
 
     val editorSD = textEditor.styledDocument
 
@@ -104,7 +103,7 @@ fun paintEditor(textEditor: JTextPane) {
             continue
         }
         // ключевые слова, константы и запятая
-        if (Keywords.contains(word.source) || Constants.contains(word.source) || word.source == ",") {
+        if (Keywords.contains(word.source) || ObjectConstants.contains(word.source) || word.source == ",") {
             paintWord(word, darculaOrange)
         }
         // целые числа

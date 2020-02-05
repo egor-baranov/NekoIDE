@@ -1,28 +1,87 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.util.Stack;
+import java.io.*;
+import java.util.HashSet;
 
 public class IDE extends JFrame {
     private JPanel rootPanel;
-    public JTextPane textEditor;
     private JToolBar toolBar;
     private JPanel toolBarPanel;
-    private Boolean shouldSave = true;
-    private Stack<String> prevStateStack, nextStateStack;
+    private JTabbedPane tabbedPane;
+    private HashSet<File> openedTabs = new HashSet<>();
 
     IDE() {
         this.setTitle("Neko IDE");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.prevStateStack = new Stack<>();
-        this.nextStateStack = new Stack<>();
-        prevStateStack.push("");
         // добавление menu
         JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("File"), editMenu = new JMenu("Edit"), helpMenu = new JMenu("Help");
-        fileMenu.add(new JMenuItem("New"));
-        fileMenu.add(new JMenuItem("Open"));
-        fileMenu.add(new JMenuItem("Settings"));
-        fileMenu.add(new JMenuItem("Exit"));
+        JMenu fileMenu = new JMenu("File"),
+                editMenu = new JMenu("Edit"),
+                helpMenu = new JMenu("Help");
+        JMenuItem newItem = new JMenuItem("New"),
+                openItem = new JMenuItem("Open"),
+                settingsItem = new JMenuItem("Settings"),
+                exitItem = new JMenuItem("Exit");
+
+        newItem.addActionListener(actionEvent -> {
+            JDialog dialogFrame = new JDialog();
+            dialogFrame.setModal(true);
+            dialogFrame.setTitle("Creation of new file");
+            dialogFrame.setSize(300, 300);
+            dialogFrame.setVisible(true);
+        });
+
+        openItem.addActionListener(actionEvent -> {
+            JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter =
+                    new FileNameExtensionFilter("Neko source files", "neko", "nk");
+            fileChooser.setFileFilter(filter);
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                System.out.println(file.getName());
+                if (!openedTabs.contains(file)) {
+
+                    CodeEditor codeEditor = new CodeEditor(file.getPath(), "");
+                    try (BufferedReader buffReader = new BufferedReader(new FileReader(file.getPath()))) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line = buffReader.readLine();
+
+                        while (line != null) {
+                            stringBuilder.append(line);
+                            stringBuilder.append(System.lineSeparator());
+                            line = buffReader.readLine();
+                        }
+                        String text = stringBuilder.toString();
+                        codeEditor.setContent(text);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    tabbedPane.addTab(file.getName(), new JScrollPane(codeEditor));
+                    openedTabs.add(file);
+                    JLabel label = new JLabel(file.getName());
+                    label.setPreferredSize(new Dimension(100, 20));
+                    tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, label);
+                }
+            }
+        });
+
+        settingsItem.addActionListener(actionEvent -> {
+            JDialog dialogFrame = new JDialog();
+            dialogFrame.setModal(true);
+            dialogFrame.setTitle("Settings");
+            dialogFrame.setSize(300, 300);
+            dialogFrame.setVisible(true);
+        });
+
+        exitItem.addActionListener(actionEvent -> dispose());
+
+        fileMenu.add(newItem);
+        fileMenu.add(openItem);
+        fileMenu.add(settingsItem);
+        fileMenu.add(exitItem);
         menuBar.add(fileMenu);
         editMenu.add(new JMenuItem("Find"));
         menuBar.add(editMenu);
@@ -34,28 +93,6 @@ public class IDE extends JFrame {
         setContentPane(rootPanel);
         setSize(600, 400);
         setVisible(true);
-    }
-
-    void saveState() {
-        if (!shouldSave) return;
-        prevStateStack.push(textEditor.getText());
-        nextStateStack.clear();
-    }
-
-    void prevState() {
-        if (prevStateStack.size() <= 1) return;
-        shouldSave = false;
-        nextStateStack.push(prevStateStack.pop());
-        textEditor.setText(prevStateStack.peek());
-        shouldSave = true;
-    }
-
-    void nextState() {
-        if (nextStateStack.isEmpty()) return;
-        shouldSave = false;
-        prevStateStack.push(nextStateStack.pop());
-        textEditor.setText(prevStateStack.peek());
-        shouldSave = true;
     }
 
     {
@@ -74,18 +111,20 @@ public class IDE extends JFrame {
      */
     private void $$$setupUI$$$() {
         rootPanel = new JPanel();
-        rootPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         rootPanel.setEnabled(true);
-        textEditor = new JTextPane();
-        rootPanel.add(textEditor, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         toolBar = new JToolBar();
         toolBar.setFloatable(false);
-        rootPanel.add(toolBar, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        rootPanel.add(toolBar, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 20), null, 0, false));
         toolBarPanel = new JPanel();
-        toolBarPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        toolBarPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         toolBarPanel.setInheritsPopupMenu(false);
         toolBarPanel.setPreferredSize(new Dimension(24, -1));
         toolBar.add(toolBarPanel);
+        tabbedPane = new JTabbedPane();
+        toolBarPanel.add(tabbedPane, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, 200), null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
+        toolBarPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     /**

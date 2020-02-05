@@ -23,7 +23,7 @@ fun getToken(s: String): Token {
     val input = strip(s)
     if (Punctuations.contains(input))
         return Token(TokenType.Punctuation, input)
-    if (Constants.contains(input))
+    if (ObjectConstants.contains(input))
         return Token(TokenType.Constant, input)
     if (Keywords.contains(input))
         return Token(TokenType.Keyword, input)
