@@ -29,6 +29,10 @@ public class IDE extends JFrame {
             dialogFrame.setModal(true);
             dialogFrame.setTitle("Creation of new file");
             dialogFrame.setSize(300, 300);
+            dialogFrame.setLocation(
+                    (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - dialogFrame.getWidth() / 2,
+                    (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - dialogFrame.getHeight() / 2);
+            dialogFrame.setResizable(false);
             dialogFrame.setVisible(true);
         });
 
@@ -73,6 +77,10 @@ public class IDE extends JFrame {
             dialogFrame.setModal(true);
             dialogFrame.setTitle("Settings");
             dialogFrame.setSize(300, 300);
+            dialogFrame.setLocation(
+                    (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - dialogFrame.getWidth() / 2,
+                    (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - dialogFrame.getHeight() / 2);
+            dialogFrame.setResizable(false);
             dialogFrame.setVisible(true);
         });
 
@@ -92,6 +100,9 @@ public class IDE extends JFrame {
         // добавление toolBar
         setContentPane(rootPanel);
         setSize(600, 400);
+        setLocation(
+                (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
+                (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
         setVisible(true);
     }
 

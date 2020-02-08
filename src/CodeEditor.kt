@@ -75,7 +75,10 @@ class CodeEditor(sourcePath: String, text: String = "") : JTextPane() {
     }
 
     public fun setContent(content: String) {
+        shouldSave = false
         this.text = content
+        shouldSave = true
+        saveState()
     }
 
     public fun saveState() {
