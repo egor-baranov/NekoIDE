@@ -1,6 +1,8 @@
 import java.awt.EventQueue
-import java.awt.Insets
+import javax.swing.JFrame
+import javax.swing.SwingUtilities
 import javax.swing.UIManager
+
 
 private fun createAndShowGUI() {
     try {
@@ -12,6 +14,8 @@ private fun createAndShowGUI() {
 }
 
 fun main(args: Array<String>) {
+    print(strip(""))
+    JFrame.setDefaultLookAndFeelDecorated(true)
     EventQueue.invokeLater(::createAndShowGUI)
     // val c: Char = 'z'
 }

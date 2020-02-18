@@ -52,19 +52,25 @@ fun paintEditor(textEditor: CodeEditor) {
             oneLineCommented = false
         }
         if (i > 0) {
-            if (words[i - 1].source == "/" && word.source == "/" && !multilineCommented) {
+            if (words[i - 1].source == "/" && word.source == "/" && !multilineCommented &&
+                word.index - words[i - 1].index == 1
+            ) {
                 oneLineCommented = true
                 paintWord(words[i - 1], commentGrey)
                 paintWord(words[i], commentGrey)
                 continue
             }
-            if (words[i - 1].source == "/" && word.source == "*" && !oneLineCommented) {
+            if (words[i - 1].source == "/" && word.source == "*" && !oneLineCommented &&
+                word.index - words[i - 1].index == 1
+            ) {
                 multilineCommented = true
                 paintWord(words[i - 1], commentGrey)
                 paintWord(word, commentGrey)
                 continue
             }
-            if (words[i - 1].source == "*" && word.source == "/" && multilineCommented) {
+            if (words[i - 1].source == "*" && word.source == "/" && multilineCommented &&
+                word.index - words[i - 1].index == 1
+            ) {
                 multilineCommented = false
                 paintWord(word, commentGrey)
                 continue

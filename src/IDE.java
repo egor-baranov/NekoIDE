@@ -1,14 +1,19 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.util.HashSet;
 
-public class IDE extends JFrame {
+
+public class IDE extends JFrame implements KeyListener, ContainerListener {
     private JPanel rootPanel;
     private JToolBar toolBar;
     private JPanel toolBarPanel;
-    private JTabbedPane tabbedPane;
+    DnDTabbedPane tabbedPane;
     private HashSet<File> openedTabs = new HashSet<>();
 
     IDE() {
@@ -25,63 +30,15 @@ public class IDE extends JFrame {
                 exitItem = new JMenuItem("Exit");
 
         newItem.addActionListener(actionEvent -> {
-            JDialog dialogFrame = new JDialog();
-            dialogFrame.setModal(true);
-            dialogFrame.setTitle("Creation of new file");
-            dialogFrame.setSize(300, 300);
-            dialogFrame.setLocation(
-                    (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - dialogFrame.getWidth() / 2,
-                    (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - dialogFrame.getHeight() / 2);
-            dialogFrame.setResizable(false);
-            dialogFrame.setVisible(true);
+            showNewFileDialog();
         });
 
         openItem.addActionListener(actionEvent -> {
-            JFileChooser fileChooser = new JFileChooser();
-            FileNameExtensionFilter filter =
-                    new FileNameExtensionFilter("Neko source files", "neko", "nk");
-            fileChooser.setFileFilter(filter);
-            int result = fileChooser.showOpenDialog(null);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                System.out.println(file.getName());
-                if (!openedTabs.contains(file)) {
-
-                    CodeEditor codeEditor = new CodeEditor(file.getPath(), "");
-                    try (BufferedReader buffReader = new BufferedReader(new FileReader(file.getPath()))) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        String line = buffReader.readLine();
-
-                        while (line != null) {
-                            stringBuilder.append(line);
-                            stringBuilder.append(System.lineSeparator());
-                            line = buffReader.readLine();
-                        }
-                        String text = stringBuilder.toString();
-                        codeEditor.setContent(text);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    tabbedPane.addTab(file.getName(), new JScrollPane(codeEditor));
-                    openedTabs.add(file);
-                    JLabel label = new JLabel(file.getName());
-                    label.setPreferredSize(new Dimension(100, 20));
-                    tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, label);
-                }
-            }
+            showOpenFileDialog();
         });
 
         settingsItem.addActionListener(actionEvent -> {
-            JDialog dialogFrame = new JDialog();
-            dialogFrame.setModal(true);
-            dialogFrame.setTitle("Settings");
-            dialogFrame.setSize(300, 300);
-            dialogFrame.setLocation(
-                    (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - dialogFrame.getWidth() / 2,
-                    (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - dialogFrame.getHeight() / 2);
-            dialogFrame.setResizable(false);
-            dialogFrame.setVisible(true);
+            showSettingsDialog();
         });
 
         exitItem.addActionListener(actionEvent -> dispose());
@@ -104,6 +61,63 @@ public class IDE extends JFrame {
                 (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
                 (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
         setVisible(true);
+        addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        tabbedPane.addContainerListener(this);
+    }
+
+    void showNewFileDialog() {
+        JDialog dialogFrame = new NewFileDialog();
+        JButton nSourceFile = new JButton("New Neko Source File (.nk, .neko)");
+        dialogFrame.add(nSourceFile);
+        dialogFrame.add(new JButton("New Project"));
+        dialogFrame.setResizable(false);
+        dialogFrame.setVisible(true);
+    }
+
+    void showOpenFileDialog() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter =
+                new FileNameExtensionFilter("Neko source files", "neko", "nk");
+        fileChooser.setFileFilter(filter);
+        int result = fileChooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            System.out.println(file.getName());
+            if (!openedTabs.contains(file)) {
+                String text = "";
+                try (BufferedReader buffReader = new BufferedReader(new FileReader(file.getPath()))) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line = buffReader.readLine();
+
+                    while (line != null) {
+                        stringBuilder.append(line);
+                        stringBuilder.append(System.lineSeparator());
+                        line = buffReader.readLine();
+                    }
+                    text = stringBuilder.toString();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                CodeEditor codeEditor = new CodeEditor(file.getPath(), this, text);
+                JScrollPane scrollPane = new JScrollPane(codeEditor);
+                tabbedPane.addTab(file.getName(), scrollPane);
+                openedTabs.add(file);
+            }
+        }
+    }
+
+    void showSettingsDialog() {
+        JDialog dialogFrame = new JDialog();
+        dialogFrame.setModal(true);
+        dialogFrame.setTitle("Settings");
+        dialogFrame.setSize(300, 300);
+        dialogFrame.setLocation(
+                (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - dialogFrame.getWidth() / 2,
+                (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - dialogFrame.getHeight() / 2);
+        dialogFrame.setResizable(false);
+        dialogFrame.setVisible(true);
     }
 
     {
@@ -128,14 +142,12 @@ public class IDE extends JFrame {
         toolBar.setFloatable(false);
         rootPanel.add(toolBar, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 20), null, 0, false));
         toolBarPanel = new JPanel();
-        toolBarPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        toolBarPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         toolBarPanel.setInheritsPopupMenu(false);
         toolBarPanel.setPreferredSize(new Dimension(24, -1));
         toolBar.add(toolBarPanel);
-        tabbedPane = new JTabbedPane();
-        toolBarPanel.add(tabbedPane, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, 200), null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
-        toolBarPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        tabbedPane = new DnDTabbedPane();
+        toolBarPanel.add(tabbedPane, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     }
 
     /**
@@ -145,4 +157,51 @@ public class IDE extends JFrame {
         return rootPanel;
     }
 
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent event) {
+        // сочетания клавиш
+        if (event.isControlDown()) {
+            // создание нового файла
+            if (event.getKeyCode() == KeyEvent.VK_N) {
+                showNewFileDialog();
+            }
+            // закрытие файла
+            if (event.getKeyCode() == KeyEvent.VK_W) {
+                tabbedPane.remove(tabbedPane.getSelectedComponent());
+            }
+            // открытие файла
+            if (event.getKeyCode() == KeyEvent.VK_O) {
+                showOpenFileDialog();
+            }
+            // открытие меню настроек
+            if (event.getKeyCode() == KeyEvent.VK_S) {
+                showSettingsDialog();
+            }
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent keyEvent) {
+
+    }
+
+    @Override
+    public void componentAdded(ContainerEvent containerEvent) {
+        System.out.println("Component Added");
+    }
+
+    @Override
+    public void componentRemoved(ContainerEvent containerEvent) {
+        System.out.println("Component Removed");
+        openedTabs.clear();
+        for (int i = 0; i < tabbedPane.getTabCount(); ++i) {
+            JScrollPane scrollPane = (JScrollPane) tabbedPane.getComponentAt(i);
+            openedTabs.add(((CodeEditor) scrollPane.getViewport().getView()).getPath());
+        }
+    }
 }

@@ -2,6 +2,7 @@ import java.awt.Color
 import java.lang.Exception
 
 fun lStrip(input: String): String {
+    if (input.isEmpty()) return ""
     var left: Int = 0
     for (i in input) {
         if (i in arrayListOf('\n', '\r', '\t', ' '))
@@ -17,6 +18,7 @@ fun lStrip(input: String): String {
 }
 
 fun rStrip(input: String): String {
+    if (input.isEmpty()) return ""
     var right: Int = 0
     for (i in input.length - 1..0) {
         if (input[i] in arrayListOf('\n', '\r', '\t', ' '))
@@ -147,3 +149,16 @@ fun isCorrectName(input: String): Boolean {
     return true
 }
 
+fun isLineCommented(input: String): Boolean {
+    if (strip(input).length < 2) return false
+    return strip(input).substring(0..1) == "//";
+}
+
+fun commented(input: String): String {
+    return "//$input"
+}
+
+fun uncommented(input: String): String {
+    val index = input.indexOf("//")
+    return input.substring(0 until index) + input.substring(index + 2 until input.length)
+}
