@@ -224,6 +224,3 @@ fun canBeDivided(word: Word): Boolean {
     }
     return isNumber(number) && isCorrectName(name)
 }
-
-
-

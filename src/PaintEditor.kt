@@ -22,6 +22,7 @@ val indexBracketColor = Color(95, 140, 138)
 val unusedColor = commentGrey
 
 // TODO: repaint на подотрезке текста (находим общий префикс, постфикс и вызываем repaint)
+// TODO: добавить подсветку TODO-блоков
 
 // отрисовка элементов по типу слов, чисел и тд
 fun paintEditor(textEditor: CodeEditor) {
