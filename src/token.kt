@@ -21,15 +21,20 @@ val endOfLine = Token(TokenType.EOL, "\n")
 
 fun getToken(s: String): Token {
     val input = strip(s)
-    if (Punctuations.contains(input))
+    if (Punctuations.contains(input)) {
         return Token(TokenType.Punctuation, input)
-    if (ObjectConstants.contains(input))
+    }
+    if (ObjectConstants.contains(input)) {
         return Token(TokenType.Constant, input)
-    if (Keywords.contains(input))
+    }
+    if (Keywords.contains(input)) {
         return Token(TokenType.Keyword, input)
-    if (Operators.contains(input))
+    }
+    if (Operators.contains(input)) {
         return Token(TokenType.Operation, input)
-    if(isNumber(input))
+    }
+    if (isNumber(input)) {
         return Token(TokenType.IntNumber, input)
+    }
     return Token(TokenType.Name, input)
 }

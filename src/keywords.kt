@@ -7,8 +7,7 @@ val builtInTypes: Array<String> = arrayOf(
 )
 
 val Keywords: Set<String> = setOf(
-    "var", "val",
-    "and", "or", "not", "xor", "in",
+    "var", "val", "in",
     "for", "while",
     "if", "else",
     "get", "set", "field", "value",
@@ -17,7 +16,8 @@ val Keywords: Set<String> = setOf(
     "public", "private", "protected",
     "static", "sealed", "abstract",
     "from", "import",
-    "thread", "ref", "out"
+    "thread", "ref",
+    "until", "downTo"
 )
 
 val Constants: Set<String> = setOf(
@@ -45,5 +45,5 @@ val Punctuations: Set<String> = setOf(
     "[", "]",
     "(", ")",
     ",", ";", ".", ":",
-    "\"", "\'", "\n"
+    "\"", "\'", "\n", "\\", "$"
 )

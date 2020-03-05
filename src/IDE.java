@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 
 public class IDE extends JFrame implements KeyListener, ContainerListener {
+
     private JPanel rootPanel;
     private JToolBar toolBar;
     private JPanel toolBarPanel;
@@ -84,7 +85,7 @@ public class IDE extends JFrame implements KeyListener, ContainerListener {
         int result = fileChooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            System.out.println(file.getName());
+            // System.out.println(file.getName());
             if (!openedTabs.contains(file)) {
                 String text = "";
                 try (BufferedReader buffReader = new BufferedReader(new FileReader(file.getPath()))) {
@@ -101,7 +102,12 @@ public class IDE extends JFrame implements KeyListener, ContainerListener {
                     e.printStackTrace();
                 }
                 CodeEditor codeEditor = new CodeEditor(file.getPath(), this, text);
+
                 JScrollPane scrollPane = new JScrollPane(codeEditor);
+
+                TextLineNumber lineNumber = new TextLineNumber(codeEditor);
+                scrollPane.setRowHeaderView(lineNumber);
+
                 tabbedPane.addTab(file.getName(), scrollPane);
                 openedTabs.add(file);
             }
@@ -192,12 +198,12 @@ public class IDE extends JFrame implements KeyListener, ContainerListener {
 
     @Override
     public void componentAdded(ContainerEvent containerEvent) {
-        System.out.println("Component Added");
+        // System.out.println("Component Added");
     }
 
     @Override
     public void componentRemoved(ContainerEvent containerEvent) {
-        System.out.println("Component Removed");
+        // System.out.println("Component Removed");
         openedTabs.clear();
         for (int i = 0; i < tabbedPane.getTabCount(); ++i) {
             JScrollPane scrollPane = (JScrollPane) tabbedPane.getComponentAt(i);

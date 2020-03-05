@@ -249,28 +249,28 @@ class DnDTabbedPane : JTabbedPane(), ActionListener {
         val label = JLabel(title)
         label.isOpaque = false
         label.preferredSize = Dimension(100, 20)
+        setTabComponentAt(index, label)
+//        val buttonIcon = ImageIO.read(File("C:\\Users\\enter\\IdeaProjects\\NekoIDE\\res\\icons\\icons8-delete-24.png"))
+//
+//        val closeButton = JButton(ImageIcon(buttonIcon))
+//        closeButton.preferredSize = Dimension(16, 16)
+//        closeButton.border = BorderFactory.createEmptyBorder()
+//        closeButton.isContentAreaFilled = false
+//
+//        val gbc = GridBagConstraints()
+//        gbc.gridx = 0
+//        gbc.gridy = 0
+//        gbc.weightx = 1.0
+//
+//        pnlTab.add(label, gbc)
+//
+//        gbc.gridx++
+//        gbc.weightx = 0.0
+//        pnlTab.add(closeButton, gbc)
+//
+//        setTabComponentAt(index, pnlTab)
 
-        val buttonIcon = ImageIO.read(File("C:\\Users\\enter\\IdeaProjects\\NekoIDE\\res\\icons\\icons8-delete-24.png"))
-
-        val closeButton = JButton(ImageIcon(buttonIcon))
-        closeButton.preferredSize = Dimension(16, 16)
-        closeButton.border = BorderFactory.createEmptyBorder()
-        closeButton.isContentAreaFilled = false
-
-        val gbc = GridBagConstraints()
-        gbc.gridx = 0
-        gbc.gridy = 0
-        gbc.weightx = 1.0
-
-        pnlTab.add(label, gbc)
-
-        gbc.gridx++
-        gbc.weightx = 0.0
-        pnlTab.add(closeButton, gbc)
-
-        setTabComponentAt(index, pnlTab)
-
-        closeButton.addActionListener(this)
+//        closeButton.addActionListener(this)
     }
 
     private fun convertTab(a_data: TabTransferData?, a_targetIndex: Int) {

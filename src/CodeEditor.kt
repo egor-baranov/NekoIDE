@@ -10,7 +10,6 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import kotlin.collections.ArrayList
 
-
 class EditorListener(f: CodeEditor) : DocumentListener {
 
     private var textEditor: CodeEditor = f
@@ -37,6 +36,8 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
     private var nextStateStack = Stack<String>()
     val path = File(sourcePath)
 
+    val pairedBracket: MutableMap<Pair<String, Int>, Pair<String, Int>> = mutableMapOf()
+
     init {
         text = _text
         prevStateStack.push(text)
@@ -47,6 +48,10 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
         document.addDocumentListener(EditorListener(this))
         addKeyListener(this)
         paintEditor(this)
+        caret.addChangeListener {
+            highlightEditor(this)
+        }
+        highlightEditor(this)
     }
 
     public fun substring(left: Int, right: Int): String {
@@ -64,10 +69,10 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
 
     public fun saveState() {
         if (!shouldSave) return
-        prevStateStack.push(this.text)
+        prevStateStack.push(text)
         nextStateStack.clear()
         val fileWriter = FileWriter(path)
-        this.write(fileWriter)
+        write(fileWriter)
         fileWriter.close()
     }
 
@@ -77,6 +82,7 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
         shouldSave = false
         nextStateStack.push(prevStateStack.pop())
         this.text = prevStateStack.peek()
+        paintEditor(this)
         this.caretPosition = caretPosition
         shouldSave = true
     }
@@ -87,6 +93,7 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
         shouldSave = false
         prevStateStack.push(nextStateStack.pop())
         this.text = prevStateStack.peek()
+        paintEditor(this)
         this.caretPosition = caretPosition
         shouldSave = true
     }
@@ -148,7 +155,7 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
             if (event.isControlDown) {
                 val left = getLineIndex(selectionStart)
                 val right = getLineIndex(selectionEnd)
-                println("$left : $right, isLineCommented = ${isLineCommented(left)}")
+                // println("$left : $right, isLineCommented = ${isLineCommented(left)}")
                 if (isTextCommented(left..right)) {
                     uncomment(left..right)
                 } else comment(left..right)
@@ -175,7 +182,7 @@ class CodeEditor(sourcePath: String, _ide: IDE, _text: String = "") : JTextPane(
         }
         return
     }
-    
+
     override fun keyReleased(p0: KeyEvent?) {
         return
     }
